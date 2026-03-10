@@ -1,0 +1,15 @@
+.program lcd
+.side_set 2 ; CP + LOAD on side-set
+
+; Y register gets loaded with the value 79 by the init code because:
+; always 320 pixels per row / 4 pixels - 1 (because do; while; decrement loop) = 79
+; set pins, 1 side 0b00 ; set FLM
+.wrap_target
+mov X, Y side 0b00 [6] ; reset loop
+start_row:
+out pins, 4 side 0b10 [7] ; write pixel data, set CP and wait
+jmp X-- start_row side 0b00 [7] ; jump back, clear CP and wait
+nop side 0b01 [7]; set LOAD
+nop side 0b00 [7] ; clear LOAD
+set pins, 0 side 0b00; clear FLM if set
+.wrap
