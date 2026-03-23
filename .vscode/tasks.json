@@ -14,7 +14,7 @@
                     "args": ["/c"]
                 }
             },
-            "command": "cmake -B build -G Ninja && ninja -C build"    
+            "command": "cmake -B build -G Ninja && ninja -C build && copy .\\build\\main.uf2 D:\\main.uf2"    
         }
 
     ]

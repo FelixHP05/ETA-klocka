@@ -4,7 +4,7 @@
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
     # find source files
-    file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS src/**.c src/**.h) #PLZ use GLOB_RECURSE not GLOB or the linker will be annoyed
+    file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS src/**.c src/**.cpp src/**.h src/**.hpp) #PLZ use GLOB_RECURSE not GLOB or the linker will be annoyed
     message(STATUS "Included source files: \n${SRC_FILES}\n\n")
 
     # initialize the SDK based on PICO_SDK_PATH
@@ -25,7 +25,7 @@ project(ETA-klocka)
         pico_add_extra_outputs(main)          # output map/bin/hex/uf2 file in addition to ELF.
 
         # include
-        target_sources(main PRIVATE src/main.c src/driver/lcd.c)                     # C source files
+        target_sources(main PRIVATE ${SRC_FILES})                                    # C source files
         pico_generate_pio_header(main ${CMAKE_CURRENT_LIST_DIR}/src/driver/lcd.pio)  # PIO assembly source files
         target_link_libraries(main pico_stdlib hardware_pio hardware_dma)            # Add pico_stdlib library which aggregates commonly used features
 
