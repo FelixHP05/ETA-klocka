@@ -8,24 +8,31 @@
 #include "generic.h"
 
 // Can describe color of a pixel (if one of color constants), or color distribution of a byte (always)
-
 typedef struct {
     const uint8_t green;
     const uint8_t alpha;
 } Color;
 
+// color constants
+Color COLOR_BLACK       = {0x00, 0x00};
+Color COLOR_GREEN       = {0xFF, 0x00};
+Color COLOR_TRANSPARENT = {0x00, 0xFF};
+Color COLOR_INVERT      = {0xFF, 0xFF}; 
+
+// color masking
+uint8_t greenMask(Color source, Color target) { return source.green ^ (source.alpha & target.green); }
+uint8_t alphaMask(Color source, Color target) { return source.alpha & target.alpha; }
+uint8_t alphaMask(uint8_t sourceAlpha, uint8_t targetAlpha) { return sourceAlpha & targetAlpha; }
 Color inline colorMask(Color source, Color target) {
-    return {
-        .green = source.green ^ (source.alpha & target.green),
-        .alpha = source.alpha & target.alpha
+    return (Color){
+        greenMask(source, target),
+        alphaMask(source, target)
     };
 }
 
-// color constants
-const Color COLOR_BLACK       = {.green = 0x00,  .alpha = 0x00 };
-const Color COLOR_GREEN       = {.green = 0xFF , .alpha = 0x00 };
-const Color COLOR_TRANSPARENT = {.green = 0x00,  .alpha = 0xFF };
-const Color COLOR_INVERT      = {.green = 0xFF , .alpha = 0xFF };
+
+
+
 
 
 
