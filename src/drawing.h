@@ -7,15 +7,26 @@
 
 #include "generic.h"
 
+// Can describe color of a pixel (if one of color constants), or color distribution of a byte (always)
+
 typedef struct {
-    const bool green;
-    const bool alpha;
+    const uint8_t green;
+    const uint8_t alpha;
 } Color;
 
-const Color COLOR_BLACK       = {.green = false, .alpha = false};
-const Color COLOR_GREEN       = {.green = true , .alpha = false};
-const Color COLOR_TRANSPARENT = {.green = false, .alpha = true };
-const Color COLOR_INVERT      = {.green = true , .alpha = true };
+Color inline colorMask(Color source, Color target) {
+    return {
+        .green = source.green ^ (source.alpha & target.green),
+        .alpha = source.alpha & target.alpha
+    };
+}
+
+// color constants
+const Color COLOR_BLACK       = {.green = 0x00,  .alpha = 0x00 };
+const Color COLOR_GREEN       = {.green = 0xFF , .alpha = 0x00 };
+const Color COLOR_TRANSPARENT = {.green = 0x00,  .alpha = 0xFF };
+const Color COLOR_INVERT      = {.green = 0xFF , .alpha = 0xFF };
+
 
 
 class Point {
