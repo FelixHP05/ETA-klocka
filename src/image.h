@@ -22,7 +22,16 @@ class Image {
     }
     inline Image(uint8_t* greenBuffer, uint8_t* alphaBuffer, Point size) :
         Image::Image(greenBuffer, alphaBuffer, size.x, size.y) {}
-    inline Image(Point size, Color fill) { /* NOT IMPLEMENTED */ }
+    inline Image(Point size, Color fill) { 
+        size_t bufWidth = ceilDiv(size.x, 8) * 8;   // round up to multiple of 8
+
+        this->height = size.y;
+        this->width = bufWidth;
+        this->greenBuffer = (uint8_t*) malloc(bufWidth/8 * height);
+        this->alphaBuffer = (uint8_t*) malloc(bufWidth/8 * height);
+
+        fillRect()
+    }
 
     /*
     * framebuffer bit order:
@@ -132,8 +141,8 @@ class Image {
                 greenShift >>= bitOffset;                           alphaShift >>= bitOffset;
 
                 Color color = colorMask(
-                    { .green = (greenShift >> 8)&0xFF,         .alpha = (alphaShift >> 8)&0xFF         },
-                    { .green = this->greenBuffer[targetIndex], .alpha = this->alphaBuffer[targetIndex] }
+                    { .green = (uint8_t)(greenShift >> 8),      .alpha = (uint8_t)(alphaShift >> 8)     },
+                    { .green = this->greenBuffer[targetIndex],  .alpha = this->alphaBuffer[targetIndex] }
                 );
                 this->greenBuffer[targetIndex] = color.green;
                 this->alphaBuffer[targetIndex] = color.alpha; 
@@ -146,7 +155,7 @@ class Image {
 
     }
 
-    void inline fill(Color color) {
+    void inline fillRect(Color color) {
         for (size_t i = 0; i < getBufferSize(); i++) {
             if (this->greenBuffer != NULL) this->greenBuffer[i] = color.green;
             if (this->alphaBuffer != NULL) this->alphaBuffer[i] = color.alpha;

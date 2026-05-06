@@ -33,7 +33,7 @@ int main() {
 
    };
 
-   // float angle = 0;
+   float angle = 0;
    // while (true) {
 
    //    Line line = Line(
@@ -47,6 +47,13 @@ int main() {
    //    angle = modulo(angle+0.05, 2*PI);
    //    sleep_us(10'000);
    // }
+   // screen.drawLines(polygon, sizeof(polygon)/sizeof(Point), 2, COLOR_GREEN);
+   
+   screen.drawLine( Line(polygon[1],polygon[2]), 2, COLOR_GREEN );
+
+   
+   Image square = Image(Point(25,25), COLOR_INVERT);
+   screen.drawImage(square, Point(25,25));
 
    while (true) {
       

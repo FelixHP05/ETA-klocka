@@ -30,20 +30,18 @@ Color inline colorMask(Color source, Color target) {
     };
 }
 
-
-
-
-
-
-
 class Point {
     public:
     inline Point() = default;
     inline Point(size_t x, size_t y) {
         this->x = x; this->y = y;
     }
+    Point operator + (Point that) { return Point(this->x + that.x, this->y + that.y); }
+    Point operator - (Point that) { return Point(this->x - that.x, this->y - that.y); }
+
     size_t x;
     size_t y;
+
 };
 
 class Line {
@@ -57,10 +55,42 @@ class Line {
         this->start = start;
         this->end   = end;
     }
+    inline Line(Rect rect) {
+        this->start = rect.pos;
+        this->end   = rect.pos + rect.size;
+    }
 
     Point start;
     Point end;
 };
+
+class Rect {
+    public:
+    inline Rect() = default;
+    inline Rect(size_t xPos, size_t yPos, size_t width, size_t height) {
+        this->pos  = Point(xPos,  yPos  );
+        this->size = Point(width, height);
+    }
+    inline Rect(Point pos, Point size) {
+        this->pos  = pos;
+        this->size = size;
+    }
+    inline Rect(Line line) {
+        this->pos = Point(
+            min(line.start.x, line.end.x),
+            min(line.start.y, line.end.y)
+        );
+        this->size = Point(
+            max(line.start.x, line.end.x) - this->pos.x,
+            max(line.start.y, line.end.y) - this->pos.y
+        );
+    }
+
+    Point pos;
+    Point size;
+};
+
+
 
 
 
