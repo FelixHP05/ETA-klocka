@@ -6,6 +6,8 @@
 
 inline int min(int a, int b) { return a < b ? a : b; }
 inline int max(int a, int b) { return a > b ? a : b; }
+inline unsigned int min(unsigned a, unsigned b) { return a < b ? a : b; }
+inline unsigned int max(unsigned a, unsigned b) { return a > b ? a : b; }
 
 // positive floating point modulo
 inline float modulo(float dividend, float divisor) {

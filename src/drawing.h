@@ -38,6 +38,8 @@ class Point {
     }
     Point operator + (Point that) { return Point(this->x + that.x, this->y + that.y); }
     Point operator - (Point that) { return Point(this->x - that.x, this->y - that.y); }
+    static inline Point minPoint(Point a, Point b) { return Point(min(a.x, b.x), min(a.y, b.y)); }
+    static inline Point maxPoint(Point a, Point b) { return Point(max(a.x, b.x), max(a.y, b.y)); }
 
     size_t x;
     size_t y;
@@ -85,6 +87,24 @@ class Rect {
             max(line.start.y, line.end.y) - this->pos.y
         );
     }
+
+    // cut rectangles
+    inline Rect operator && (Rect that) {
+        Point near = Point::maxPoint(this->pos, that.pos);
+        Point far  = Point::minPoint(this->pos + this->size, that.pos + that.size);
+        return Rect(near, far - near);
+    }
+    // bounding rectangle
+    inline Rect operator || (Rect that) {
+        Point near = Point::minPoint(this->pos, that.pos);
+        Point far  = Point::maxPoint(this->pos + this->size, that.pos + that.size);
+        return Rect(near, far - near);
+    }
+
+    inline size_t left()   { return pos.x;          }
+    inline size_t right()  { return pos.x + size.x; }
+    inline size_t top()    { return pos.y;          }
+    inline size_t bottom() { return pos.y + size.y; }
 
     Point pos;
     Point size;
