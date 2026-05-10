@@ -6,14 +6,17 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "test.h"
 #include "image.h"
 #include "driver/lcd.h"
 
-const int image_w = LCD_WIDTH * 8;
-const int image_h = LCD_HEIGHT;
-uint8_t frameBuffer[LCD_WIDTH * LCD_HEIGHT] = {0};
+
 
 int main() {
+
+   const int image_w = LCD_WIDTH * 8;
+   const int image_h = LCD_HEIGHT;
+   uint8_t frameBuffer[LCD_WIDTH * LCD_HEIGHT] = {0};
 
    stdio_init_all();
    printf("Hello, Pico!\n");
@@ -22,18 +25,17 @@ int main() {
    lcd_init((uint32_t*)frameBuffer, 3, pio0);
    Image screen = Image(frameBuffer, nullptr, image_w, image_h);
 
-   Point polygon[] = {
-      Point(25,           25          ),
-      Point(image_w - 25, 25          ),
-      Point(image_w - 25, image_h - 25),
-      Point(25,           image_h - 25),
-      Point(25,   50),
-      Point(100,  40),
-      Point(120, 140)
+   while (true) {
+      printf(".\n");
+      
+      testSetPixel(screen);
+      testPolygon(screen);
 
-   };
+      testDrawRect(screen);
+      testDrawImage(screen);
+   }
 
-   float angle = 0;
+   // float angle = 0;
    // while (true) {
 
    //    Line line = Line(
@@ -49,16 +51,9 @@ int main() {
    // }
    // screen.drawLines(polygon, sizeof(polygon)/sizeof(Point), 2, COLOR_GREEN);
    
-   screen.drawLine( Line(polygon[1],polygon[2]), 2, COLOR_GREEN );
 
-   
-   Image square = Image(Point(25,25), COLOR_INVERT);
-   screen.drawImage(square, Point(25,25));
 
-   while (true) {
-      
-      sleep_us(10'000);
-   }
+
   
 }
 

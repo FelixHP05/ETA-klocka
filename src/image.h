@@ -3,11 +3,10 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
-#include <pico/stdlib.h>
 #include <stdexcept>
 #include <math.h>
 
-#include "drawing.h"
+#include "drawing/drawing.h"
 #include "generic.h"
 
 class Image {
@@ -30,8 +29,8 @@ class Image {
         this->greenBuffer = (uint8_t*) malloc(bufWidth/8 * height);
         this->alphaBuffer = (uint8_t*) malloc(bufWidth/8 * height);
 
-        fillRect(Rect(0,      0, size.x-1,   size.y-1), fill              );
-        fillRect(Rect(size.x, 0, bufWidth-1, size.y-1), COLOR_TRANSPARENT );
+        drawRect(Rect(0,      0, size.x-1,   size.y-1), fill              );
+        drawRect(Rect(size.x, 0, bufWidth-1, size.y-1), COLOR_TRANSPARENT );
     }
 
     /*
@@ -50,7 +49,6 @@ class Image {
 
     private:
     size_t inline getBufferSize() { return height * width / 8; }
-    size_t inline getBufferIndex(size_t x, size_t y) {  }
     void inline setBufferByte(size_t index, Color color, uint8_t mask = 0xFF) {
         if (this->greenBuffer != NULL) {
             this->greenBuffer[index] |= (  mask  & color.green);
@@ -101,22 +99,23 @@ class Image {
                 float y = ceil(k*x + m + offset);
                 setPixel(Point(x, y), color);
 
+            }
+        } else {
+            float k = deltaX / deltaY;
+            float m = line.start.x - k * line.start.y;
+            float width = thickness * sqrt(1+k*k); //positive cross-section along x
+
+            for (int y = min(line.start.y, line.end.y); y <= max(line.start.y, line.end.y); y++)
+            for (float offset = -width/2; offset < width/2; offset++) {
+                int x = ceil(k*y + m + offset);
+                setPixel(Point(x, y), color);
+
                 // printf("dy: %f, ", deltaY);
                 // printf("dx: %f, ", deltaX);
                 // printf("thickness: %f, ", thickness);
                 // printf("k: %f, ", k);
                 // printf("width: %f, ", width);
                 // printf("\n");
-            }
-        } else {
-            float k = deltaX / deltaY;
-            float m = line.start.x - k * line.start.y;
-            float width = thickness * sqrt(1+k*k)/abs(k); //positive cross-section along x
-
-            for (int y = min(line.start.y, line.end.y); y <= max(line.start.y, line.end.y); y++)
-            for (float offset = -width/2; offset < width/2; offset++) {
-                int x = ceil(k*y + m + offset);
-                setPixel(Point(x, y), color);
             }
         }
         
@@ -129,15 +128,11 @@ class Image {
         return;
     }
 
-    void inline drawImage(Image img, Point pos) {
-
-        
+    void inline applyImage(Image img, Point pos) {
 
         //img should be right-shifted by these offsets
         int byteOffset = floorDiv(pos.x, 8);
         int bitOffset = modulo(pos.x, 8);
-
-
 
         // iterate over source bytes
         for (size_t byteY = 0; byteY < img.height;    byteY++) {
@@ -180,7 +175,7 @@ class Image {
     }
 
     // fill rectangle, inclusive bounds
-    void inline fillRect(Rect rect, Color color) {
+    void inline drawRect(Rect rect, Color color) {
         
         // handle overflowed rectangle (trim to bounds)
         rect = rect && Rect(0, 0, width, height);

@@ -1,13 +1,18 @@
 #pragma once
 
 #include <stdint.h>
+#include <math.h>
 
 #define PI 3.1415926535F
 
 inline int min(int a, int b) { return a < b ? a : b; }
 inline int max(int a, int b) { return a > b ? a : b; }
-inline unsigned int min(unsigned a, unsigned b) { return a < b ? a : b; }
-inline unsigned int max(unsigned a, unsigned b) { return a > b ? a : b; }
+inline unsigned int min(unsigned int a, unsigned int b) { return a < b ? a : b; }
+inline unsigned int max(unsigned int a, unsigned int b) { return a > b ? a : b; }
+inline long long min(long long a, long long b) { return a < b ? a : b; }
+inline long long max(long long a, long long b) { return a > b ? a : b; }
+inline unsigned long long min(unsigned long long a, unsigned long long b) { return a < b ? a : b; }
+inline unsigned long long max(unsigned long long a, unsigned long long b) { return a > b ? a : b; }
 
 // positive floating point modulo
 inline float modulo(float dividend, float divisor) {
