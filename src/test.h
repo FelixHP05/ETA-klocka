@@ -20,9 +20,9 @@ inline void testPolygon(Image screen) {
         Point(200,               55  ),
         Point(180,               80),
         Point(180,               60),
-        Point(screen.width - 25, 30          ),
-        Point(screen.width - 25, screen.height - 25),
-        Point(100,               screen.height - 25),
+        Point(screen.getHeight() - 25, 30          ),
+        Point(screen.getWidth() - 25, screen.getHeight() - 25),
+        Point(100,               screen.getHeight() - 25),
         Point(100,               50  ),
         Point(120,               140 )
     };
@@ -39,6 +39,6 @@ inline void testDrawRect(Image screen) {
 
 inline void testDrawImage(Image screen) {
 
-    Image fillImg = Image(Point(25, 25), COLOR_INVERT);
+    Image fillImg = Image(Point(25, 25), COLOR_GREEN);
     screen.applyImage(fillImg, Point(25, 100));
 }

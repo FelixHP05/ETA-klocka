@@ -11,7 +11,7 @@
 
 class Image {
 
-    public:
+    public: // constructors/destructor
     inline Image() = default;
     inline Image(uint8_t* greenBuffer, uint8_t* alphaBuffer, size_t width, size_t height) {
         this->greenBuffer = greenBuffer;
@@ -32,22 +32,27 @@ class Image {
         drawRect(Rect(0,      0, size.x-1,   size.y-1), fill              );
         drawRect(Rect(size.x, 0, bufWidth-1, size.y-1), COLOR_TRANSPARENT );
     }
+    inline ~Image() { if (ownsBuffers) { free(alphaBuffer); free(greenBuffer); }}
 
     /*
     * framebuffer bit order:
     *   |byte0   |byte1   |
     *   |76543210|76543210|...new line
     */
-
-    // 1-bit color channels, may be NULL
-    uint8_t* greenBuffer;
+    
+    private: //internal data
+    uint8_t* greenBuffer;       // 1-bit color channels, may be NULL, unless `ownsBuffers`.
     uint8_t* alphaBuffer;
-
-    // width and height of green and alpha channels, in PIXELS
-    size_t width;
+    bool ownsBuffers = false;   // destructor will free buffers
+    size_t width;               // width and height of green and alpha channels, in PIXELS
     size_t height;
 
-    private:
+    
+    public: // publicly exposed copies
+    inline size_t getWidth() { return width; }
+    inline size_t getHeight() { return height; }
+
+    private: // utility functions
     size_t inline getBufferSize() { return height * width / 8; }
     void inline setBufferByte(size_t index, Color color, uint8_t mask = 0xFF) {
         if (this->greenBuffer != NULL) {
@@ -60,7 +65,7 @@ class Image {
         } 
     }
 
-    public:
+    public: // exposed functions
     bool inline setPixel(Point pos, Color color) {
 
         //check if in image
@@ -161,7 +166,20 @@ class Image {
                     { .green = (uint8_t)(greenShift >> 8),      .alpha = (uint8_t)(alphaShift >> 8)     },
                     { .green = this->greenBuffer[targetIndex],  .alpha = this->alphaBuffer[targetIndex] }
                 );
-                setBufferByte(targetIndex, color);             
+                setBufferByte(targetIndex, color); 
+                
+                printf("\n");
+                printf("\n");
+
+                printf("byteY: %i, ", byteY);
+                printf("byteX: %i, ", byteX);
+                printf("sourceIndex: %i, ", sourceIndex);
+                printf("targetIndex: %i, ", targetIndex);
+                printf("\n");
+                printf("source green: %X, ", img.greenBuffer[sourceIndex]);
+                printf("green shift buffer: %X, ", greenShift);
+                printf("result green: %X, ", color.green);
+                printf("\n");
             }
 
             // apply last byte
