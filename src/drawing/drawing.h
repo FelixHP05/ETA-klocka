@@ -52,6 +52,7 @@ class Line {
     Point end;
 };
 
+// Rectangle, represented by half-open integer interval between two corners.
 class Rect {
     public:
     inline Rect() = default;

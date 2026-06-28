@@ -26,6 +26,8 @@ class Image {
 
         this->height = size.y;
         this->width = bufWidth;
+        this->ownsBuffers = true;
+
         this->greenBuffer = (uint8_t*) malloc(bufWidth/8 * height);
         this->alphaBuffer = (uint8_t*) malloc(bufWidth/8 * height);
 
@@ -142,19 +144,19 @@ class Image {
         // iterate over source bytes
         for (size_t byteY = 0; byteY < img.height;    byteY++) {
 
-            // shift buffers 
-            uint32_t greenShift = 0;
-            uint32_t alphaShift = 0;
+            // shift buffers (contains source color data, but possibly bitshifted)
+            uint32_t greenShift = 0x00; 
+            uint32_t alphaShift = 0x00;
 
             for (size_t byteX = 0; byteX < img.width / 8; byteX++) {
                 
                 // indexes
-                size_t sourceIndex = byteX                + img.width   * byteY;
-                size_t targetIndex = (byteX + byteOffset) + this->width * byteY;
+                size_t sourceIndex = byteX                + img.width  /8 *  byteY;
+                size_t targetIndex = (byteX + byteOffset) + this->width/8 * (byteY + pos.y);
                 
                 // offset
-                greenShift <<= bitOffset + 8;                       // align old data at byte #2 (from LSB)
-                greenShift  |= (img.greenBuffer[sourceIndex] << 8); // add new data at byte #1 (from LSB)
+                greenShift <<= bitOffset + 8;                       // align old data at byte #2 (counting from LSB)
+                greenShift  |= (img.greenBuffer[sourceIndex] << 8); // add new data at byte #1 (counting from LSB)
                 greenShift >>= bitOffset;                           // shift aside (underflow partially into byte #0)
 
                 alphaShift <<= bitOffset + 8;
@@ -166,7 +168,6 @@ class Image {
                     { .green = (uint8_t)(greenShift >> 8),      .alpha = (uint8_t)(alphaShift >> 8)     },
                     { .green = this->greenBuffer[targetIndex],  .alpha = this->alphaBuffer[targetIndex] }
                 );
-                setBufferByte(targetIndex, color); 
                 
                 printf("\n");
                 printf("\n");
@@ -176,10 +177,22 @@ class Image {
                 printf("sourceIndex: %i, ", sourceIndex);
                 printf("targetIndex: %i, ", targetIndex);
                 printf("\n");
-                printf("source green: %X, ", img.greenBuffer[sourceIndex]);
-                printf("green shift buffer: %X, ", greenShift);
-                printf("result green: %X, ", color.green);
+                printf("source green: %2X, ", img.greenBuffer[sourceIndex]);
+                printf("green shift buffer: %8X, ", greenShift);
+                printf("target green: %2X, ", this->greenBuffer[targetIndex]);
+                printf("result green: %2X, ", color.green);
+                printf("\n");                
+                printf("source alpha: %2X, ", img.alphaBuffer[sourceIndex]);
+                printf("alpha shift buffer: %8X, ", alphaShift);
+                printf("target alpha: %2X, ", this->alphaBuffer[targetIndex]);
+                printf("result alpha: %2X, ", color.alpha);
                 printf("\n");
+
+                setBufferByte(
+                    targetIndex,
+                    color, 
+                    byteX==0 ? (uint8_t)0xFF >> bitOffset : (uint8_t)0xFF); 
+
             }
 
             // apply last byte
@@ -188,7 +201,7 @@ class Image {
                 { .green = (uint8_t)(greenShift >> 8),   .alpha = (uint8_t)(alphaShift >> 8)   },
                 { .green = this->greenBuffer[lastIndex], .alpha = this->alphaBuffer[lastIndex] }
             );
-            setBufferByte(lastIndex, color);
+            setBufferByte(lastIndex, color, (uint8_t)0xFF << bitOffset); //TODO, make sure ok when end of image aligns to byte border
         }
     }
 

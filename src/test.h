@@ -33,6 +33,9 @@ inline void testPolygon(Image screen) {
 
 inline void testDrawRect(Image screen) {
     
+    Rect rect1 = Rect(Point(25,51), Point(25, 2));
+    screen.drawRect(rect1, COLOR_GREEN);
+
     Rect rect = Rect(Point(25, 75), Point(25, 25));
     screen.drawRect(rect, COLOR_GREEN);
 }
@@ -40,5 +43,6 @@ inline void testDrawRect(Image screen) {
 inline void testDrawImage(Image screen) {
 
     Image fillImg = Image(Point(25, 25), COLOR_GREEN);
-    screen.applyImage(fillImg, Point(25, 100));
+    screen.applyImage(fillImg, Point(25, 125));
+
 }
