@@ -9,7 +9,6 @@
 #include "test.h"
 #include "image.h"
 #include "driver/lcd.h"
-#include "tmp.h"
 
 
 int main() {
@@ -33,7 +32,6 @@ int main() {
     while (true) {
         printf("hi :)\n");
         sleep_ms(1000);
-        screen.applyImage(a, Point(100, 100));
         
         runTests(screen);
     }

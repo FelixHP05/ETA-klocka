@@ -2,7 +2,7 @@
 #include <pico/stdlib.h>
 
 #include "image.h"
-
+#include "images.h"
 
 
 inline void testSetPixel(Image screen) {
@@ -44,14 +44,13 @@ inline void testDrawRect(Image screen) {
 
 inline void testDrawImage(Image screen) {
 
-    printf("B1\n");
+
     Image fillImg = Image(Point(8,2), COLOR_GREEN);
-    printf("B2\n");
+
     screen.applyImage(fillImg, Point(33, 125));
-    printf("B3\n");
+
     screen.applyImage(fillImg, Point(32, 130));
-    printf("B4\n");
-    printf("C\n");
+
 
 }
 
@@ -64,4 +63,5 @@ inline void runTests(Image screen) {
     testDrawRect(screen);
     //testDrawImage(screen);
 
+    screen.applyImage(fontUpperÖ, Point(20, 20));
 }
