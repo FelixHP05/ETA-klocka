@@ -3,6 +3,8 @@
 
 #include "image.h"
 
+
+
 inline void testSetPixel(Image screen) {
 
     for (size_t x = 25; x < 50; x++) for (size_t y = 25; y < 50; y++) {
@@ -42,7 +44,26 @@ inline void testDrawRect(Image screen) {
 
 inline void testDrawImage(Image screen) {
 
-    Image fillImg = Image(Point(25, 25), COLOR_GREEN);
-    screen.applyImage(fillImg, Point(25, 125));
+    printf("B1\n");
+    Image fillImg = Image(Point(8,2), COLOR_GREEN);
+    printf("B2\n");
+    screen.applyImage(fillImg, Point(33, 125));
+    printf("B3\n");
+    screen.applyImage(fillImg, Point(32, 130));
+    printf("B4\n");
+    printf("C\n");
+
+}
+
+inline void runTests(Image screen) {
+    
+    
+    //testSetPixel(screen);
+    //testPolygon(screen);
+
+    //testDrawRect(screen);
+    printf("A\n");
+    testDrawImage(screen);
+    printf("D\n");
 
 }

@@ -31,8 +31,8 @@ class Image {
         this->greenBuffer = (uint8_t*) malloc(bufWidth/8 * height);
         this->alphaBuffer = (uint8_t*) malloc(bufWidth/8 * height);
 
-        drawRect(Rect(0,      0, size.x-1,   size.y-1), fill              );
-        drawRect(Rect(size.x, 0, bufWidth-1, size.y-1), COLOR_TRANSPARENT );
+        drawRect(Rect(0,      0, size.x,   size.y), fill              );
+        drawRect(Rect(size.x, 0, bufWidth, size.y), COLOR_TRANSPARENT );
     }
     inline ~Image() { if (ownsBuffers) { free(alphaBuffer); free(greenBuffer); }}
 
@@ -40,14 +40,15 @@ class Image {
     * framebuffer bit order:
     *   |byte0   |byte1   |
     *   |76543210|76543210|...new line
+    *   line break MUST be on byte border
     */
     
     private: //internal data
     uint8_t* greenBuffer;       // 1-bit color channels, may be NULL, unless `ownsBuffers`.
-    uint8_t* alphaBuffer;
+    uint8_t* alphaBuffer;       // 1-bit color channels, may be NULL, unless `ownsBuffers`.
     bool ownsBuffers = false;   // destructor will free buffers
-    size_t width;               // width and height of green and alpha channels, in PIXELS
-    size_t height;
+    size_t width;               // width of image, in PIXELS (will ALWAYS be a multiple of 8) (make sure u call constructor like so)
+    size_t height;              // height of image, in PIXELS
 
     
     public: // publicly exposed copies
@@ -56,6 +57,8 @@ class Image {
 
     private: // utility functions
     size_t inline getBufferSize() { return height * width / 8; }
+    size_t inline getByteIndex(size_t x, size_t y) { /* NOT IMPLEMENTED */} //Should return floor
+    size_t inline getBitOffset(size_t x) { /* NOT IMPLEMENTED */}
     void inline setBufferByte(size_t index, Color color, uint8_t mask = 0xFF) {
         if (this->greenBuffer != NULL) {
             this->greenBuffer[index] |= (  mask  & color.green);
@@ -66,6 +69,7 @@ class Image {
             this->alphaBuffer[index] &= ((~mask) | color.alpha);
         } 
     }
+
 
     public: // exposed functions
     bool inline setPixel(Point pos, Color color) {
@@ -144,9 +148,9 @@ class Image {
         // iterate over source bytes
         for (size_t byteY = 0; byteY < img.height;    byteY++) {
 
-            // shift buffers (contains source color data, but possibly bitshifted)
-            uint32_t greenShift = 0x00; 
-            uint32_t alphaShift = 0x00;
+            // shift buffers (contains source color data, but bitshifted)
+            uint32_t greenShift = 0x00000000; 
+            uint32_t alphaShift = 0x00000000;
 
             for (size_t byteX = 0; byteX < img.width / 8; byteX++) {
                 
@@ -172,10 +176,10 @@ class Image {
                 printf("\n");
                 printf("\n");
 
-                printf("byteY: %i, ", byteY);
-                printf("byteX: %i, ", byteX);
-                printf("sourceIndex: %i, ", sourceIndex);
-                printf("targetIndex: %i, ", targetIndex);
+                printf("byteY: %zu, ", byteY);
+                printf("byteX: %zu, ", byteX);
+                printf("sourceIndex: %zu, ", sourceIndex);
+                printf("targetIndex: %zu, ", targetIndex);
                 printf("\n");
                 printf("source green: %2X, ", img.greenBuffer[sourceIndex]);
                 printf("green shift buffer: %8X, ", greenShift);
@@ -187,47 +191,80 @@ class Image {
                 printf("target alpha: %2X, ", this->alphaBuffer[targetIndex]);
                 printf("result alpha: %2X, ", color.alpha);
                 printf("\n");
+                printf("the end :3\n");
 
                 setBufferByte(
                     targetIndex,
                     color, 
-                    byteX==0 ? (uint8_t)0xFF >> bitOffset : (uint8_t)0xFF); 
+                    byteX==0 ? (uint8_t)0xFF >> bitOffset : (uint8_t)0xFF
+                ); 
+                
 
             }
-
+            // (byteX + byteOffset) + this->width/8 * (byteY + pos.y)
             // apply last byte
-            uint8_t lastIndex = (img.width / 8 + byteOffset) + this->width * byteY; 
-            Color color = colorMask(
-                { .green = (uint8_t)(greenShift >> 8),   .alpha = (uint8_t)(alphaShift >> 8)   },
-                { .green = this->greenBuffer[lastIndex], .alpha = this->alphaBuffer[lastIndex] }
+            size_t lastTargetIndex = (img.width / 8 + byteOffset) + this->width/8 * (byteY + pos.y); 
+            Color lastColor = colorMask(
+                { .green = (uint8_t)(greenShift >> 0),   .alpha = (uint8_t)(alphaShift >> 0)   },
+                { .green = this->greenBuffer[lastTargetIndex], .alpha = this->alphaBuffer[lastTargetIndex] }
             );
-            setBufferByte(lastIndex, color, (uint8_t)0xFF << bitOffset); //TODO, make sure ok when end of image aligns to byte border
+
+                            printf("\n");
+                printf("\n");
+
+                printf("byteY: %zu, ", byteY);
+                printf("byteX: N/A, ");
+                printf("sourceIndex: shiftbuffer, ");
+                printf("targetIndex: %zu, ", lastTargetIndex);
+                printf("\n");
+                printf("source green: %2X, ", (uint8_t)(greenShift >> 8));
+                printf("green shift buffer: %8X, ", greenShift);
+                printf("target green: %2X, ", this->greenBuffer[lastTargetIndex]);
+                printf("result green: %2X, ", lastColor.green);
+                printf("\n");                
+                printf("source alpha: %2X, ", (uint8_t)(alphaShift >> 8) );
+                printf("alpha shift buffer: %8X, ", alphaShift);
+                printf("target alpha: %2X, ", this->alphaBuffer[lastTargetIndex]);
+                printf("result alpha: %2X, ", lastColor.alpha);
+                printf("\n");
+                printf("MASK: %2X, ", (uint8_t)(0xFF << (8-bitOffset)));
+                printf("the end :3\n");
+
+            setBufferByte(
+                lastTargetIndex,
+                lastColor,
+                (uint8_t)(0xFF << 8-bitOffset)
+            ); //TODO, make sure ok when end of image aligns to byte border
+        
         }
+        
+        printf("EVEN MORE \"the end :3\"\n");
+        fflush(NULL);
     }
 
-    // fill rectangle, inclusive bounds
+    // fill rectangle, half-open bounds
     void inline drawRect(Rect rect, Color color) {
         
         // handle overflowed rectangle (trim to bounds)
         rect = rect && Rect(0, 0, width, height);
 
-        size_t startByte = floorDiv(rect.pos.x, 8);         // first byte index along width (inclusive)
-        uint8_t startMask = 0xFF >> modulo(rect.pos.x, 8);  // bitmask
-        size_t stopByte = floorDiv(rect.pos.x + rect.size.x, 8);                // last byte index along width (inclusive)
-        uint8_t stopMask = 0xFF << (7- modulo(rect.pos.x + rect.size.x, 8));    // bitmask
+        size_t startByte = floorDiv(rect.pos.x, 8);                             // first byte index along width
+        uint8_t startMask = 0xFF >> modulo(rect.pos.x, 8);                      // bitmask (LSB aligned or full)
+        size_t stopByte = floorDiv(rect.pos.x + rect.size.x, 8);                // last byte index along width
+        uint8_t stopMask = 0xFF << (8 - modulo(rect.pos.x + rect.size.x, 8));   // bitmask (MSB aligned or empty)
 
         // check for narrow rectangles (merge masks)
         if (startByte == stopByte) {
             startMask &= stopMask; stopMask = 0x00;
         }
 
-        for (size_t y = rect.pos.y; y <= rect.pos.y + rect.size.y; y++) {
-            size_t baseIndex = y * this->width/8;   // index of first byte on row
+        for (size_t y = rect.pos.y; y < rect.pos.y + rect.size.y; y++) {
+            size_t baseIndex = y * this->width / 8;   // index of first byte on row
 
-            setBufferByte(baseIndex + startByte, color, startMask); 
+            setBufferByte(baseIndex + startByte, color, startMask); //apply start
             for (size_t x = startByte + 1; x < stopByte; x++)
-                setBufferByte(baseIndex + x, color);
-            setBufferByte(baseIndex + stopByte, color, stopMask);
+                setBufferByte(baseIndex + x, color);                //apply full bytes
+            setBufferByte(baseIndex + stopByte, color, stopMask);   //apply stop
         }
     }
 };

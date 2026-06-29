@@ -1,26 +1,26 @@
 #!/usr/bin/env bash
-# AI GENERATED 
+# Mostly AI GENERATED 
 
 
 set -euo pipefail
-
 LABEL="RPI-RP2"
 MNT="/mnt/rp2"
 UF2="build/main.uf2"
+DEV="/dev/disk/by-label/$LABEL"
 
 # Build
 echo "Building..."
 cmake -B build -G Ninja
 ninja -C build
+echo ""
+echo ""
 
-# Find device
-echo "Looking for device with label: $LABEL"
-DEV="$(readlink -f "/dev/disk/by-label/$LABEL" || true)"
-if [[ -z "${DEV}" || ! -e "${DEV}" ]]; then
-    echo "Device not found: $LABEL"
-    exit 1
-fi
-echo "Found device: $DEV"
+
+# Wait for device to appear
+echo "Waiting for device with label "\""$LABEL"\"...
+while [[ ! -e "$DEV" ]]; do
+    sleep 0.2
+done
 
 
 # Mount
@@ -32,11 +32,14 @@ else
     sudo mount "$DEV" "$MNT"
 fi
 
+
+# flash
 echo "Copying UF2..."
 sudo cp "$UF2" "$MNT/"
 sync # flush filesystem buffer
 
+
+# unmount
 echo "Unmounting..."
 sudo umount "$MNT"
-
 echo "Done."

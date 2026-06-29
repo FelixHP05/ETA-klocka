@@ -14,47 +14,33 @@
 
 int main() {
 
-   const int image_w = LCD_WIDTH * 8;
-   const int image_h = LCD_HEIGHT;
-   uint8_t frameBuffer[LCD_WIDTH * LCD_HEIGHT] = {0};
+    // init uart
+    stdio_init_all();
+    sleep_ms(2000);
+    printf("Hello, Pico!\n");
 
-   stdio_init_all();
-   printf("Hello, Pico!\n");
+    // init screen
+    const int image_w = LCD_WIDTH * 8;
+    const int image_h = LCD_HEIGHT;
+    uint8_t frameBuffer[LCD_WIDTH * LCD_HEIGHT] = {0};
+    Image screen = Image(frameBuffer, nullptr, image_w, image_h);
 
-
-   lcd_init((uint32_t*)frameBuffer, 3, pio0);
-   Image screen = Image(frameBuffer, nullptr, image_w, image_h);
-
-   while (true) {
-      printf(".\n");
-      
-      testSetPixel(screen);
-      testPolygon(screen);
-
-      testDrawRect(screen);
-      testDrawImage(screen);
-   }
-
-   // float angle = 0;
-   // while (true) {
-
-   //    Line line = Line(
-   //       50,         image_h/2 + 100*cos(angle+PI*2/3),
-   //       image_w-50, image_h/2 + 100*cos(angle       )
-   //    );
-
-   //    screen.fill(COLOR_BLACK);
-   //    screen.drawLine(line, 2, COLOR_GREEN);
-      
-   //    angle = modulo(angle+0.05, 2*PI);
-   //    sleep_us(10'000);
-   // }
-   // screen.drawLines(polygon, sizeof(polygon)/sizeof(Point), 2, COLOR_GREEN);
-   
+    // init lcd
+    lcd_init((uint32_t*)frameBuffer, 3, pio0);
 
 
 
-  
+    while (true) {
+        printf("hi :)\n");
+        sleep_ms(1000);
+        runTests(screen);
+    }
+
+
+
+
+
+
 }
 
  
