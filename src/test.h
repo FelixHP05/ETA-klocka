@@ -61,9 +61,7 @@ inline void runTests(Image screen) {
     //testSetPixel(screen);
     //testPolygon(screen);
 
-    //testDrawRect(screen);
-    printf("A\n");
-    testDrawImage(screen);
-    printf("D\n");
+    testDrawRect(screen);
+    //testDrawImage(screen);
 
 }

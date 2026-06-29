@@ -3,7 +3,6 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
-#include <stdexcept>
 #include <math.h>
 
 #include "drawing/drawing.h"
