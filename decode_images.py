@@ -48,7 +48,7 @@ with Image.open(pngFile).convert("RGBA") as img:
 
     greenData = [0] * (img.height * rowLength)
     alphaData = [0] * (img.height * rowLength)
-    size = (rowLength, img.height)
+    size = (rowLength * 8, img.height)
 
     for y in range(img.height):
         for xByte in range(rowLength):                

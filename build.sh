@@ -3,24 +3,22 @@
 
 
 set -euo pipefail
+PRINT_PREFIX="\033[1;35m[build.sh]\033[0m"
 LABEL="RPI-RP2"
 MNT="/mnt/rp2"
 UF2="build/main.uf2"
 DEV="/dev/disk/by-label/$LABEL"
 
 # Build
-echo ""
-echo "[build.sh] Writing build rules..."
+printf "\n\n$PRINT_PREFIX Generating build files...\n"
 cmake -B build -G Ninja
 
-echo ""
-echo "[build.sh] Building..."
+printf "\n\n$PRINT_PREFIX Building...\n"
 ninja -C build
 
 
 # Wait for device to appear
-echo ""
-echo "[build.sh] Waiting for device with label "\""$LABEL"\"...
+printf "\n\n$PRINT_PREFIX Waiting for device with label "\""$LABEL"\"..."\n"
 while [[ ! -e "$DEV" ]]; do
     sleep 0.2
 done
@@ -29,20 +27,20 @@ done
 # Mount
 sudo mkdir -p "$MNT"
 if mountpoint -q "$MNT"; then
-    echo "[build.sh] Already mounted at $MNT"
+    printf "$PRINT_PREFIX Already mounted at $MNT\n"
 else
-    echo "[build.sh] Mounting..."
+    printf "$PRINT_PREFIX Mounting...\n"
     sudo mount "$DEV" "$MNT"
 fi
 
 
 # flash
-echo "[build.sh] Copying UF2..."
+printf "$PRINT_PREFIX Copying UF2...\n"
 sudo cp "$UF2" "$MNT/"
 sync # flush filesystem buffer
 
 
 # unmount
-echo "[build.sh] Unmounting..."
+printf "$PRINT_PREFIX Unmounting...\n"
 sudo umount "$MNT"
-echo "[build.sh] Done."
+printf "$PRINT_PREFIX Done.\n"
