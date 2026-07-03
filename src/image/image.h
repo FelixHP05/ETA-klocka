@@ -3,37 +3,35 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <math.h>
 
 #include "drawing/drawing.h"
 #include "generic.h"
 
+/*
+    Wraps two optional framebuffers (green and alpha),
+    along with metadata.
+
+    Images may own framebuffers, or they may not, depending on whether they were passed to the constructor or not.
+    Owning images yeild non-owning images when copied.
+    Owning images will free framebuffers upon being destroyed.
+*/
 class Image {
 
-    public: // constructors/destructor
-    inline Image() = default;
-    inline Image(uint8_t* greenBuffer, uint8_t* alphaBuffer, size_t width, size_t height) {
-        this->greenBuffer = greenBuffer;
-        this->alphaBuffer = alphaBuffer;
-        this->width  = width;
-        this->height = height;
-    }
-    inline Image(uint8_t* greenBuffer, uint8_t* alphaBuffer, Point size) :
-        Image::Image(greenBuffer, alphaBuffer, size.x, size.y) {}
-    inline Image(Point size, Color fill) { 
-        size_t bufWidth = ceilDiv(size.x, 8) * 8;   // round up to multiple of 8
+    
+    public:
+    // constructors
+    Image(uint8_t* greenBuffer, uint8_t* alphaBuffer, size_t width, size_t height);
+    Image(uint8_t* greenBuffer, uint8_t* alphaBuffer, Point size);
+    Image(Point size, Color fill);
 
-        this->height = size.y;
-        this->width = bufWidth;
-        this->ownsBuffers = true;
-
-        this->greenBuffer = (uint8_t*) malloc(bufWidth/8 * height);
-        this->alphaBuffer = (uint8_t*) malloc(bufWidth/8 * height);
-
-        drawRect(Rect(0,      0, size.x,   size.y), fill              );
-        drawRect(Rect(size.x, 0, bufWidth, size.y), COLOR_TRANSPARENT );
-    }
-    inline ~Image() { if (ownsBuffers) { free(alphaBuffer); free(greenBuffer); }}
+    // copy/move/destruct behaviour
+    Image(const Image& other);
+    Image(Image&& other);      
+    ~Image();
+    Image& operator=(const Image& other);
+    Image& operator=(Image&& other); 
 
     /*
     * framebuffer bit order:
@@ -45,9 +43,9 @@ class Image {
     private: //internal data
     uint8_t* greenBuffer;       // 1-bit color channels, may be NULL, unless `ownsBuffers`.
     uint8_t* alphaBuffer;       // 1-bit color channels, may be NULL, unless `ownsBuffers`.
-    bool ownsBuffers = false;   // destructor will free buffers
     size_t width;               // width of image, in PIXELS (will ALWAYS be a multiple of 8) (make sure u call constructor like so)
     size_t height;              // height of image, in PIXELS
+    bool ownsBuffers = false;   // destructor will free buffers
 
     
     public: // publicly exposed copies

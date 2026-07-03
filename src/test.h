@@ -1,7 +1,7 @@
 
 #include <pico/stdlib.h>
 
-#include "image.h"
+#include "image/image.h"
 #include "images.h"
 
 

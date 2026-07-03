@@ -1,5 +1,5 @@
 
-#include "image.h"
+#include "image/image.h"
 
 extern Image fontUpperA;
 extern Image fontUpperB;

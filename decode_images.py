@@ -55,7 +55,7 @@ with Image.open(pngFile).convert("RGBA") as img:
             for xPixel in range(8):
                 
                 x = 8*xByte + xPixel
-                r,g,b,a = img.getpixel((8*xByte + xPixel, y)) \
+                r,g,b,a = img.getpixel((x, y)) \
                     if x < img.width \
                     else (0,0,0,0)
                 
@@ -68,7 +68,7 @@ with Image.open(pngFile).convert("RGBA") as img:
 with open(cFile, "w") as cWriter:
     
     cWriter.write("#include <stdint.h>\n")
-    cWriter.write("#include \"image.h\"\n")
+    cWriter.write("#include \"image/image.h\"\n")
 
     if enableGreen:
         cWriter.write("\n\nstatic uint8_t green[] = {\n")

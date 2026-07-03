@@ -3,7 +3,6 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
-#include <stdexcept>
 
 
 // Can describe color of a pixel (if one of color constants), or color distribution of a byte (always)

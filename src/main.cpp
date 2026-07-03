@@ -7,7 +7,7 @@
 #include <string.h>
 
 #include "test.h"
-#include "image.h"
+#include "image/image.h"
 #include "driver/lcd.h"
 
 
