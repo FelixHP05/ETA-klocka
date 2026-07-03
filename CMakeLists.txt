@@ -28,8 +28,8 @@ project(ETA-klocka)
     message(STATUS "Included source files: \n${SRC_FILES}, and the ones generated from images.\n\n")
 
     # find images
-    file(GLOB_RECURSE XBM_FILES CONFIGURE_DEPENDS images/*.xbm)
-    message(STATUS "Included image files: \n${XBM_FILES}\n\n")
+    file(GLOB_RECURSE PNG_FILES CONFIGURE_DEPENDS images/*.png)
+    message(STATUS "Included image files: \n${PNG_FILES}\n\n")
 
     # specify include roots
     set(INCLUDE_DIRS 
@@ -39,22 +39,23 @@ project(ETA-klocka)
     message(STATUS "Include directories are: \n${INCLUDE_DIRS}")
 
 
-    # add build rule for .xbm images --> .cpp
+    # add build rule for .png images --> .cpp
     # also adds more SRC_FILES (ofc)
-    foreach(XBM_FILE ${XBM_FILES})
-        get_filename_component(XBM_NAME ${XBM_FILE} NAME_WE)
-        set(GENERATED_FILE "${CMAKE_SOURCE_DIR}/build/generated/images/${XBM_NAME}.cpp")
+    foreach(PNG_FILE ${PNG_FILES})
+        get_filename_component(PNG_NAME ${PNG_FILE} NAME_WE)
+        set(GENERATED_FILE "${CMAKE_SOURCE_DIR}/build/generated/images/${PNG_NAME}.cpp")
         list(APPEND SRC_FILES ${GENERATED_FILE})
 
 
         add_custom_command(
-            OUTPUT ${GENERATED_FILE}
+            OUTPUT  ${GENERATED_FILE}
             COMMAND ${PYTHON}
-                    ${CMAKE_SOURCE_DIR}/package-image-buffers.py 
-                    --input ${XBM_FILE}
+                    ${CMAKE_SOURCE_DIR}/decode_images.py 
+                    --input ${PNG_FILE}
                     --output ${GENERATED_FILE}
-            DEPENDS package-image-buffers.py ${XBM_FILE} 
-            COMMENT "Generating ${XBM_NAME}.cpp"
+            DEPENDS ${PNG_FILE} 
+                    ${CMAKE_SOURCE_DIR}/decode_images.py 
+            COMMENT "Generating ${PNG_NAME}.cpp"
             VERBATIM
         )
     endforeach()
