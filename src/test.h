@@ -60,8 +60,8 @@ inline void runTests(Image screen) {
     //testSetPixel(screen);
     //testPolygon(screen);
 
-    //testDrawRect(screen);
+    testDrawRect(screen);
     //testDrawImage(screen);
 
-    screen.applyImage(fontUpperÖ, Point(20, 20));
+    screen.applyImage(fontUpperODdot, Point(20, 20));
 }

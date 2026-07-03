@@ -10,6 +10,15 @@
 #include "generic.h"
 
 /*
+    Defines underlying source of alpha data in images
+*/
+enum AlphaMode {
+    BUFFER,         // defined by buffer
+    OPAQUE,         // alpha channel always opaque (0)
+    XOR_MASK,       // alpha channel always transparent (1)
+};
+
+/*
     Wraps two optional framebuffers (green and alpha),
     along with metadata.
 
@@ -41,11 +50,12 @@ class Image {
     */
     
     private: //internal data
-    uint8_t* greenBuffer;       // 1-bit color channels, may be NULL, unless `ownsBuffers`.
-    uint8_t* alphaBuffer;       // 1-bit color channels, may be NULL, unless `ownsBuffers`.
-    size_t width;               // width of image, in PIXELS (will ALWAYS be a multiple of 8) (make sure u call constructor like so)
+    uint8_t* greenBuffer;       // 1-bit color channel
+    uint8_t* alphaBuffer;       // 1-bit color channel, may be NULL
+    size_t width;               // width of image, in PIXELS (will ALWAYS be a multiple of 8, make sure u call constructor like so)
     size_t height;              // height of image, in PIXELS
     bool ownsBuffers = false;   // destructor will free buffers
+    AlphaMode alphaMode;        // determines behaviour of setBufferByte/getBufferByte
 
     
     public: // publicly exposed copies
@@ -66,6 +76,7 @@ class Image {
             this->alphaBuffer[index] &= ((~mask) | color.alpha);
         } 
     }
+    Color getBufferByte(size_t index);
 
 
     public: // exposed functions
@@ -170,26 +181,6 @@ class Image {
                     { .green = this->greenBuffer[targetIndex],  .alpha = this->alphaBuffer[targetIndex] }
                 );
                 
-                printf("\n");
-                printf("\n");
-
-                printf("byteY: %zu, ", byteY);
-                printf("byteX: %zu, ", byteX);
-                printf("sourceIndex: %zu, ", sourceIndex);
-                printf("targetIndex: %zu, ", targetIndex);
-                printf("\n");
-                printf("source green: %2X, ", img.greenBuffer[sourceIndex]);
-                printf("green shift buffer: %8X, ", greenShift);
-                printf("target green: %2X, ", this->greenBuffer[targetIndex]);
-                printf("result green: %2X, ", color.green);
-                printf("\n");                
-                printf("source alpha: %2X, ", img.alphaBuffer[sourceIndex]);
-                printf("alpha shift buffer: %8X, ", alphaShift);
-                printf("target alpha: %2X, ", this->alphaBuffer[targetIndex]);
-                printf("result alpha: %2X, ", color.alpha);
-                printf("\n");
-                printf("the end :3\n");
-
                 setBufferByte(
                     targetIndex,
                     color, 
@@ -206,27 +197,6 @@ class Image {
                 { .green = this->greenBuffer[lastTargetIndex], .alpha = this->alphaBuffer[lastTargetIndex] }
             );
 
-                            printf("\n");
-                printf("\n");
-
-                printf("byteY: %zu, ", byteY);
-                printf("byteX: N/A, ");
-                printf("sourceIndex: shiftbuffer, ");
-                printf("targetIndex: %zu, ", lastTargetIndex);
-                printf("\n");
-                printf("source green: %2X, ", (uint8_t)(greenShift >> 8));
-                printf("green shift buffer: %8X, ", greenShift);
-                printf("target green: %2X, ", this->greenBuffer[lastTargetIndex]);
-                printf("result green: %2X, ", lastColor.green);
-                printf("\n");                
-                printf("source alpha: %2X, ", (uint8_t)(alphaShift >> 8) );
-                printf("alpha shift buffer: %8X, ", alphaShift);
-                printf("target alpha: %2X, ", this->alphaBuffer[lastTargetIndex]);
-                printf("result alpha: %2X, ", lastColor.alpha);
-                printf("\n");
-                printf("MASK: %2X, ", (uint8_t)(0xFF << (8-bitOffset)));
-                printf("the end :3\n");
-
             setBufferByte(
                 lastTargetIndex,
                 lastColor,
@@ -234,9 +204,6 @@ class Image {
             ); //TODO, make sure ok when end of image aligns to byte border
         
         }
-        
-        printf("EVEN MORE \"the end :3\"\n");
-        fflush(NULL);
     }
 
     // fill rectangle, half-open bounds

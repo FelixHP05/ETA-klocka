@@ -65,7 +65,7 @@ with Image.open(pngFile).convert("RGBA") as img:
 
 
 # write c
-with open(cFile, "w") as cWriter:
+with open(cFile, "w", encoding="utf-8") as cWriter:
     
     cWriter.write("#include <stdint.h>\n")
     cWriter.write("#include \"image/image.h\"\n")
