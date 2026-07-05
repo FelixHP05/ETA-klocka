@@ -10,7 +10,7 @@
 #include "image/image.h"
 #include "driver/lcd.h"
 
-
+uint8_t frameBuffer[LCD_WIDTH * LCD_HEIGHT] = {0};
 int main() {
 
     // init uart
@@ -19,10 +19,7 @@ int main() {
     printf("Hello, Pico!\n");
 
     // init screen
-    const int image_w = LCD_WIDTH * 8;
-    const int image_h = LCD_HEIGHT;
-    uint8_t frameBuffer[LCD_WIDTH * LCD_HEIGHT] = {0};
-    Image screen = Image(frameBuffer, nullptr, image_w, image_h);
+    Image screen = Image(AlphaMode::OPAQUE, frameBuffer, nullptr, 8*LCD_WIDTH, LCD_HEIGHT);
 
     // init lcd
     lcd_init((uint32_t*)frameBuffer, 3, pio0);
